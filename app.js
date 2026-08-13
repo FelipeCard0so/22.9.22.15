@@ -303,7 +303,7 @@ async function loadLocalDatabase() {
   try {
     const db = await openCache();
     let bytes = await new Promise((resolve, reject) => {
-      const request = db.transaction(CACHE_STORE).objectStore(CACHE_STORE).get('database-v2');
+      const request = db.transaction(CACHE_STORE).objectStore(CACHE_STORE).get('database-v3');
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -313,7 +313,7 @@ async function loadLocalDatabase() {
       if (!response.ok) throw new Error('rf_cache.db não publicado');
       bytes = await response.arrayBuffer();
       // Salva em cache para não precisar baixar de novo na próxima visita
-      db.transaction(CACHE_STORE, 'readwrite').objectStore(CACHE_STORE).put(bytes, 'database-v2');
+      db.transaction(CACHE_STORE, 'readwrite').objectStore(CACHE_STORE).put(bytes, 'database-v3');
     }
 
     // initSqlJs vem do script sql-wasm.js carregado no index.html
@@ -372,7 +372,8 @@ function queryLocal(site, uf, techs) {
       // 3G usa UARFCN, 4G/5G usam EARFCN — o valor bruto "earfcn" do
       // banco é redirecionado para a coluna correta conforme a tecnologia.
       '[P]DL_UARFCN': row.tech === '3G' ? row.earfcn : '',
-      '[P]DL_EARFCN': ['4G', '5G'].includes(row.tech) ? row.earfcn : ''
+      '[P]DL_EARFCN': row.tech === '4G' ? row.earfcn : '',
+      '[P]NARFCN_SSB': row.tech === '5G' ? row.earfcn : ''
     }));
 }
 
@@ -431,7 +432,8 @@ function selectedTechs() {
 function valueFor(row, field, tech) {
   if (field === 'earfcn') {
     return tech === '3G' ? col(row, '[P]DL_UARFCN')
-         : tech === '4G' || tech === '5G' ? col(row, '[P]DL_EARFCN')
+         : tech === '4G' ? col(row, '[P]DL_EARFCN')
+         : tech === '5G' ? col(row, '[P]NARFCN_SSB')
          : '';
   }
   return col(row, field);
