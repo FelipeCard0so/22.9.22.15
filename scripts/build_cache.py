@@ -58,11 +58,13 @@ def download_workbook(file_id):
 
 def build():
     db_path = ROOT / "rf_cache.db"
-    if db_path.exists():
-        db_path.unlink()
-    connection = sqlite3.connect(db_path)
+    temporary_db_path = ROOT / "rf_cache.tmp.db"
+    if temporary_db_path.exists():
+        temporary_db_path.unlink()
+    connection = sqlite3.connect(temporary_db_path)
     connection.execute("CREATE TABLE rf (id INTEGER PRIMARY KEY, site TEXT, uf TEXT, tech TEXT, banda TEXT, azimuth TEXT, bcch TEXT, psc TEXT, pci TEXT, bandwidth TEXT, cidade TEXT, bairro TEXT, endereco TEXT, earfcn TEXT, latitude TEXT, longitude TEXT, mimo TEXT)")
     insert = "INSERT INTO rf (site,uf,tech,banda,azimuth,bcch,psc,pci,bandwidth,cidade,bairro,endereco,earfcn,latitude,longitude,mimo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+    total_records = 0
     for tech, file_id in FILES.items():
         workbook = openpyxl.load_workbook(io.BytesIO(download_workbook(file_id)), read_only=True, data_only=True)
         sheet = workbook[workbook.sheetnames[0]]
@@ -73,10 +75,16 @@ def build():
             values = {field: text(row[indexes[COLUMNS[field]]]) if field in COLUMNS and COLUMNS[field] in indexes and indexes[COLUMNS[field]] < len(row) else "" for field in FIELDS}
             earfcn = values["dl_uarfcn"] if tech == "3G" else values["narfcn_ssb"] if tech == "5G" else values["dl_earfcn"] if tech == "4G" else ""
             connection.execute(insert, (values["site"].upper(), values["uf"].upper(), tech, values["banda"], values["azimuth"], values["bcch"] if tech == "2G" else "", values["psc"] if tech == "3G" else "", values["pci"] if tech in ("4G", "5G") else "", values["bandwidth"] if tech == "4G" else "", values["cidade"], values["bairro"], values["endereco"], earfcn, values["latitude"], values["longitude"], values["mimo"] if tech == "4G" else ""))
+            total_records += 1
         workbook.close()
+        print(f"{tech}: base carregada")
+    if not total_records:
+        raise RuntimeError("Nenhum registro foi encontrado nas bases.")
     connection.execute("CREATE INDEX ix_rf_site_uf ON rf(site, uf)")
     connection.commit()
     connection.close()
+    temporary_db_path.replace(db_path)
+    print(f"Base publicada: {total_records:,} registros")
 
 
 if __name__ == "__main__":
