@@ -56,11 +56,13 @@ const TECHS = ['2G', '3G', '4G', '5G'];
 let rows = [];       // linhas carregadas via loadBases() (fluxo XLSX completo)
 let lastData = null;  // último resultado consolidado (usado pelo botão COPIAR)
 let localDb = null;   // instância do banco SQLite local (sql.js), quando disponível
+let localDatabaseReady = Promise.resolve();
 
 // Nome do banco/objeto usados no IndexedDB para cache local
 // (linhas do loadBases, base .db local e resultados de consultas remotas).
 const CACHE_DB = 'base-vivo-cache';
 const CACHE_STORE = 'datasets';
+const DATABASE_CACHE_KEY = 'database-v4';
 
 
 /* ============================================================================
@@ -303,22 +305,26 @@ async function loadLocalDatabase() {
   try {
     const db = await openCache();
     let bytes = await new Promise((resolve, reject) => {
-      const request = db.transaction(CACHE_STORE).objectStore(CACHE_STORE).get('database-v3');
+      const request = db.transaction(CACHE_STORE).objectStore(CACHE_STORE).get(DATABASE_CACHE_KEY);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
 
     if (!bytes) {
-      const response = await fetch('rf_cache.db', {cache: 'no-store'});
+      const response = await fetch(`rf_cache.db?v=${DATABASE_CACHE_KEY}`, {cache: 'no-store'});
       if (!response.ok) throw new Error('rf_cache.db não publicado');
       bytes = await response.arrayBuffer();
-      // Salva em cache para não precisar baixar de novo na próxima visita
-      db.transaction(CACHE_STORE, 'readwrite').objectStore(CACHE_STORE).put(bytes, 'database-v3');
     }
 
     // initSqlJs vem do script sql-wasm.js carregado no index.html
     const SQL = await initSqlJs({locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${file}`});
     localDb = new SQL.Database(new Uint8Array(bytes));
+    const recordCount = localDb.exec('SELECT count(*) AS total FROM rf');
+    if (!recordCount.length || !recordCount[0].values[0][0]) {
+      throw new Error('rf_cache.db não possui registros');
+    }
+    // Salva somente uma base válida para não reutilizar um banco vazio.
+    db.transaction(CACHE_STORE, 'readwrite').objectStore(CACHE_STORE).put(bytes, DATABASE_CACHE_KEY);
     $('db-status').textContent = 'Base local pronta · consulta rápida';
   } catch {
     // Sem banco local disponível: aplicação continua funcionando via GVIZ
@@ -387,7 +393,7 @@ function queryLocal(site, uf, techs) {
  */
 async function queryRemote(site, uf, techs) {
   const local = queryLocal(site, uf, techs);
-  if (local) return local;
+  if (local !== null) return local;
 
   const key = `query:${site}:${uf}:${techs.join(',')}`;
   try {
@@ -660,9 +666,11 @@ $('search-form').onsubmit = async e => {
   if (!site || !uf || !techs.length) return; // campos obrigatórios não preenchidos
 
   $('message').className = 'message';
-  $('message').textContent = 'Consultando as bases...';
+  $('message').textContent = 'Aguardando a base local...';
 
   try {
+    await localDatabaseReady;
+    $('message').textContent = 'Consultando as bases...';
     const found = await queryRemote(site, uf, techs);
     if (!found.length) {
       $('results').innerHTML = '';
@@ -684,7 +692,11 @@ $('search-form').onsubmit = async e => {
 $('reload').onclick = async () => {
   try {
     const db = await openCache();
-    db.transaction(CACHE_STORE, 'readwrite').objectStore(CACHE_STORE).clear();
+    await new Promise((resolve, reject) => {
+      const request = db.transaction(CACHE_STORE, 'readwrite').objectStore(CACHE_STORE).clear();
+      request.onsuccess = resolve;
+      request.onerror = () => reject(request.error);
+    });
   } catch { /* se falhar, ainda assim recarrega a página abaixo */ }
   localDb = null;
   location.reload();
@@ -713,4 +725,8 @@ renderHistory();                                        // mostra histórico sal
 rows = [];                                               // garante estado limpo do fluxo XLSX (seção 5)
 $('db-status').textContent = 'Carregando base local...';
 $('message').textContent = 'Digite o Site e o UF para iniciar a consulta.';
-loadLocalDatabase();                                     // tenta abrir a base SQLite local (caminho principal)
+const searchButton = document.querySelector('#search-form button[type="submit"]');
+searchButton.disabled = true;
+localDatabaseReady = loadLocalDatabase().finally(() => {
+  searchButton.disabled = false;
+});
