@@ -38,7 +38,7 @@ const FILES = {
   '2G': 'link aqui',
   '3G': 'link aqui',
   '4G': 'link aqui',
-  '5G': 'link aqui',
+  '5G': 'link aqui'
 };
 
 // IDs das mesmas planilhas, usados nas consultas GVIZ (querySheet),
