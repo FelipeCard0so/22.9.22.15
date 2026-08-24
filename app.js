@@ -1,3 +1,4 @@
+
 /* ============================================================================
    BASE VIVO — app.js
    Projeto: Consulta de sites Vivo (2G/3G/4G/5G)
@@ -34,10 +35,10 @@
 // URLs de export direto (.xlsx) de cada planilha por tecnologia.
 // Usadas apenas pelo fluxo alternativo loadBases() (ver seção 5).
 const FILES = {
-  '2G': 'https://docs.google.com/spreadsheets/d/1zwa8F_WrJS9LXArcNJqmemn7FK96Ycnu/export?format=xlsx',
-  '3G': 'https://docs.google.com/spreadsheets/d/1HCI7IuWjMle50E-TRAz1cbo-yZLaUPF-/export?format=xlsx',
-  '4G': 'https://docs.google.com/spreadsheets/d/13q7CDdLC0Hy4lmgyu9PY-EA-hBgDGFpj/export?format=xlsx',
-  '5G': 'https://docs.google.com/spreadsheets/d/1Ff7NnCsDQl0YdbDxvEEa82rrFtYzojVB/export?format=xlsx'
+  '2G': 'link aqui',
+  '3G': 'link aqui',
+  '4G': 'link aqui',
+  '5G': 'link aqui',
 };
 
 // IDs das mesmas planilhas, usados nas consultas GVIZ (querySheet),
