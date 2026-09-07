@@ -35,10 +35,10 @@
 // URLs de export direto (.xlsx) de cada planilha por tecnologia.
 // Usadas apenas pelo fluxo alternativo loadBases() (ver seção 5).
 const FILES = {
-  '2G': 'link aqui',
-  '3G': 'link aqui',
-  '4G': 'link aqui',
-  '5G': 'link aqui'
+  '2G': 'https://docs.google.com/spreadsheets/d/1wMEkr5RPyp5KLC6T3otpMLBCEbtA4Zig/edit?usp=sharing&ouid=101316962466011668117&rtpof=true&sd=true',
+  '3G': 'https://docs.google.com/spreadsheets/d/1-VxaNWg7PTbR92KsnvM15iWYVA-xm6hq/edit?usp=drive_link&ouid=101316962466011668117&rtpof=true&sd=true',
+  '4G': 'https://docs.google.com/spreadsheets/d/1tJyBYPqxD5NT1xEGF_T9zpawdDQjAEx6/edit?usp=drive_link&ouid=101316962466011668117&rtpof=true&sd=true',
+  '5G': 'https://docs.google.com/spreadsheets/d/1JUuz6KKEJeEM__yObTg6Fn0__ps18gyX/edit?usp=drive_link&ouid=101316962466011668117&rtpof=true&sd=true'
 };
 
 // IDs das mesmas planilhas, usados nas consultas GVIZ (querySheet),
