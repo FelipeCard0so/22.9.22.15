@@ -35,20 +35,21 @@
 // URLs de export direto (.xlsx) de cada planilha por tecnologia.
 // Usadas apenas pelo fluxo alternativo loadBases() (ver seção 5).
 const FILES = {
-  '2G': 'https://docs.google.com/spreadsheets/d/1wMEkr5RPyp5KLC6T3otpMLBCEbtA4Zig/edit?usp=sharing&ouid=101316962466011668117&rtpof=true&sd=true',
-  '3G': 'https://docs.google.com/spreadsheets/d/1-VxaNWg7PTbR92KsnvM15iWYVA-xm6hq/edit?usp=drive_link&ouid=101316962466011668117&rtpof=true&sd=true',
-  '4G': 'https://docs.google.com/spreadsheets/d/1tJyBYPqxD5NT1xEGF_T9zpawdDQjAEx6/edit?usp=drive_link&ouid=101316962466011668117&rtpof=true&sd=true',
-  '5G': 'https://docs.google.com/spreadsheets/d/1JUuz6KKEJeEM__yObTg6Fn0__ps18gyX/edit?usp=drive_link&ouid=101316962466011668117&rtpof=true&sd=true'
+  '2G': 'https://docs.google.com/spreadsheets/d/1wMEkr5RPyp5KLC6T3otpMLBCEbtA4Zig/export?format=xlsx',
+  '3G': 'https://docs.google.com/spreadsheets/d/1-VxaNWg7PTbR92KsnvM15iWYVA-xm6hq/export?format=xlsx',
+  '4G': 'https://docs.google.com/spreadsheets/d/1tJyBYPqxD5NT1xEGF_T9zpawdDQjAEx6/export?format=xlsx',
+  '5G': 'https://docs.google.com/spreadsheets/d/1JUuz6KKEJeEM__yObTg6Fn0__ps18gyX/export?format=xlsx'
 };
 
 // IDs das mesmas planilhas, usados nas consultas GVIZ (querySheet),
 // que trazem só as linhas do site pesquisado em vez do arquivo inteiro.
 const SHEETS = {
-  '2G': '1zwa8F_WrJS9LXArcNJqmemn7FK96Ycnu',
-  '3G': '1HCI7IuWjMle50E-TRAz1cbo-yZLaUPF-',
-  '4G': '13q7CDdLC0Hy4lmgyu9PY-EA-hBgDGFpj',
-  '5G': '1Ff7NnCsDQl0YdbDxvEEa82rrFtYzojVB'
+  '2G': '1wMEkr5RPyp5KLC6T3otpMLBCEbtA4Zig',    // ✅ NOVO
+  '3G': '1-VxaNWg7PTbR92KsnvM15iWYVA-xm6hq',    // ✅ NOVO
+  '4G': '1tJyBYPqxD5NT1xEGF_T9zpawdDQjAEx6',    // ✅ NOVO
+  '5G': '1JUuz6KKEJeEM__yObTg6Fn0__ps18gyX'     // ✅ NOVO
 };
+
 
 // Lista de tecnologias suportadas, na ordem em que devem ser exibidas.
 const TECHS = ['2G', '3G', '4G', '5G'];
