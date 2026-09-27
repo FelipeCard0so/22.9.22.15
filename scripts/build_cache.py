@@ -9,10 +9,10 @@ import openpyxl
 
 ROOT = Path(__file__).resolve().parent.parent
 FILES = {
-    "2G": "1zwa8F_WrJS9LXArcNJqmemn7FK96Ycnu",
-    "3G": "1HCI7IuWjMle50E-TRAz1cbo-yZLaUPF-",
-    "4G": "13q7CDdLC0Hy4lmgyu9PY-EA-hBgDGFpj",
-    "5G": "1Ff7NnCsDQl0YdbDxvEEa82rrFtYzojVB",
+    "2G": "1wMEkr5RPyp5KLC6T3otpMLBCEbtA4Zig",
+    "3G": "1-VxaNWg7PTbR92KsnvM15iWYVA-xm6hq",
+    "4G": "1tJyBYPqxD5NT1xEGF_T9zpawdDQjAEx6",
+    "5G": "1JUuz6KKEJeEM__yObTg6Fn0__ps18gyX",
 }
 DOWNLOAD_URLS = (
     "https://drive.usercontent.google.com/download?id={file_id}&export=download&confirm=t",
