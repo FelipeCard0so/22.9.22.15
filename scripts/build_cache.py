@@ -33,9 +33,14 @@ COLUMNS = {
 }
 
 
-def text(value):
+def text(value, field=None):
     if value is None:
         return ""
+    # Excel/openpyxl às vezes entrega inteiros como float (ex: 219.0).
+    # Só converte para "219" quando o campo não é latitude/longitude,
+    # que precisam manter as casas decimais.
+    if isinstance(value, float) and field not in ("latitude", "longitude") and value.is_integer():
+        value = int(value)
     value = str(value).strip()
     return "" if value.lower() == "nan" else value
 
@@ -72,7 +77,7 @@ def build():
         headers = [text(value) for value in next(iterator)]
         indexes = {name: index for index, name in enumerate(headers)}
         for row in iterator:
-            values = {field: text(row[indexes[COLUMNS[field]]]) if field in COLUMNS and COLUMNS[field] in indexes and indexes[COLUMNS[field]] < len(row) else "" for field in FIELDS}
+            values = {field: text(row[indexes[COLUMNS[field]]], field) if field in COLUMNS and COLUMNS[field] in indexes and indexes[COLUMNS[field]] < len(row) else "" for field in FIELDS}
             earfcn = values["dl_uarfcn"] if tech == "3G" else values["narfcn_ssb"] if tech == "5G" else values["dl_earfcn"] if tech == "4G" else ""
             connection.execute(insert, (values["site"].upper(), values["uf"].upper(), tech, values["banda"], values["azimuth"], values["bcch"] if tech == "2G" else "", values["psc"] if tech == "3G" else "", values["pci"] if tech in ("4G", "5G") else "", values["bandwidth"] if tech == "4G" else "", values["cidade"], values["bairro"], values["endereco"], earfcn, values["latitude"], values["longitude"], values["mimo"] if tech == "4G" else ""))
             total_records += 1
